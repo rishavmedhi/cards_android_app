@@ -1,6 +1,7 @@
 package com.example.rmedhi.chalk_cards_1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -59,11 +60,13 @@ public class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position){
+    public void onBindViewHolder(final ViewHolder holder, final int position){
 
         int w = 100, h = 100;
         Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
         final Bitmap bmp = Bitmap.createBitmap(w, h, conf);
+
+
 
         // Set a click listener for item remove button
         holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {

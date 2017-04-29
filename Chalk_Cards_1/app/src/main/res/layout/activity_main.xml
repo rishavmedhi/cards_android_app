@@ -16,4 +16,5 @@
         android:scrollbars="horizontal"
         >
     </android.support.v7.widget.RecyclerView>
+
 </RelativeLayout>
