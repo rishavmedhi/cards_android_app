@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static android.R.attr.data;
-
 public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
     private Context mContext;
@@ -39,15 +38,16 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private Button mButtonAdd;
 
+    private int g_pos;
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private final List<Bitmap> cardsList = new ArrayList();
+    private List<com.example.rmedhi.chalk_cards_1.CardList> cardsList = new ArrayList();
 
-    int w = 100, h = 100;
-    Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-    private final Bitmap bmp = Bitmap.createBitmap(w, h, conf);
+    private Bitmap bmp;
+
+    private com.example.rmedhi.chalk_cards_1.CardList template=new com.example.rmedhi.chalk_cards_1.CardList();
 
     @Override
     public MenuInflater getMenuInflater() {
@@ -67,7 +67,10 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_add:
                 int position = 0;
-                cardsList.add(position,bmp);
+                // initialising template
+                template.setImage(bmp);
+                // setting blank template
+                cardsList.add(position,template);
                 mAdapter.notifyItemInserted(0);
                 mRecyclerView.scrollToPosition(position);
                 break;
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
 
         /* initialising a blank image */
-        cardsList.add(bmp);
+        cardsList.add(template);
 
 
 
@@ -153,14 +156,14 @@ public class MainActivity extends AppCompatActivity {
 //        });
     }
 
-    public class ViewAdapter extends RecyclerView.Adapter<com.example.rmedhi.chalk_cards_1.ViewAdapter.ViewHolder> {
-        private List<Bitmap> mDataSet;
+    public class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
+        private List<CardList> mDataSet;
         private Context mContext;
         private Random mRandom = new Random();
         private int count=0;
         private int addCardid;
 
-        public ViewAdapter(Context context,List<Bitmap> list){
+        public ViewAdapter(Context context,List<CardList> list){
             mDataSet = list;
             mContext = context;
         }
@@ -171,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
             public Button mCameraButton;
             public Button mRemoveButton;
             public Button mGallerybtn;
-            public Button mAddButton;
+            public ImageView mImageView;
+            public int camera_clicked=0;
             public RelativeLayout mRelativeLayout;
             public ViewHolder(View v){
                 super(v);
@@ -180,38 +184,49 @@ public class MainActivity extends AppCompatActivity {
                 mCameraButton = (Button) v.findViewById(R.id.camera_btn);
                 mGallerybtn = (Button) v.findViewById(R.id.gallery_btn);
                 mRelativeLayout = (RelativeLayout) v.findViewById(R.id.rl);
-                ImageView mImageView = (ImageView) v.findViewById(R.id.imageView);
-
+                mImageView = (ImageView) v.findViewById(R.id.imageView);
             }
 
         }
 
         @Override
-        public com.example.rmedhi.chalk_cards_1.ViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
+        public ViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
             // Create a new View
             View v = LayoutInflater.from(mContext).inflate(R.layout.custom_view,parent,false);
-            com.example.rmedhi.chalk_cards_1.ViewAdapter.ViewHolder vh = new com.example.rmedhi.chalk_cards_1.ViewAdapter.ViewHolder(v);
+            ViewAdapter.ViewHolder vh = new ViewAdapter.ViewHolder(v);
             return vh;
         }
 
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
-        public void onBindViewHolder(final com.example.rmedhi.chalk_cards_1.ViewAdapter.ViewHolder holder, final int position) {
+        public void onBindViewHolder(final ViewAdapter.ViewHolder holder, final int position) {
 
-            int w = 100, h = 100;
-            Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-            final Bitmap bmp = Bitmap.createBitmap(w, h, conf);
-
+            // checking if set image is not null
+            if (mDataSet.get(position).getImage() != null)
+            {
+                holder.mImageView.setVisibility(View.VISIBLE);
+                holder.mRemoveButton.setVisibility(View.INVISIBLE);
+                holder.mCameraButton.setVisibility(View.INVISIBLE);
+                holder.mGallerybtn.setVisibility(View.INVISIBLE);
+                Log.d("Photo",mDataSet.get(position).getImage()+"");
+                holder.mImageView.setImageBitmap(mDataSet.get(position).getImage());
+            }
+            else{
+                holder.mImageView.setVisibility(View.INVISIBLE);
+                holder.mRemoveButton.setVisibility(View.VISIBLE);
+                holder.mCameraButton.setVisibility(View.VISIBLE);
+                holder.mGallerybtn.setVisibility(View.VISIBLE);
+            }
 
             // setting click listener for camera launch and fetch clicked image
             holder.mCameraButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    g_pos=position;
                     Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 }
             });
-
 
             // Set a click listener for item remove button
             holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
@@ -263,6 +278,18 @@ public class MainActivity extends AppCompatActivity {
             return mDataSet.size();
         }
 
+    }
+
+    // for camera action end and setting image
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            Log.d("Photo",photo+"");
+            // imageView.setImageBitmap(photo);
+            cardsList.get(g_pos).setImage(photo);
+            mAdapter.notifyDataSetChanged();
+            Log.d("Size",cardsList.size()+"");
+        }
     }
 }
 
