@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -32,6 +35,7 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
+    private static final int PICK_IMAGE_REQUEST = 1000;
     private Context mContext;
 
     RelativeLayout mRelativeLayout;
@@ -175,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
             public Button mRemoveButton;
             public Button mGallerybtn;
             public ImageView mImageView;
-            public int camera_clicked=0;
             public RelativeLayout mRelativeLayout;
             public ViewHolder(View v){
                 super(v);
@@ -227,6 +230,18 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 }
             });
+
+            // click action for gallery button
+            holder.mGallerybtn.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                      g_pos=position;
+                      Intent galleryintent = new Intent();
+                      galleryintent.setType("image/*");
+                      galleryintent.setAction(Intent.ACTION_GET_CONTENT);
+                      startActivityForResult(Intent.createChooser(galleryintent, "Select Picture"), PICK_IMAGE_REQUEST);
+                  }
+              });
 
             // Set a click listener for item remove button
             holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
@@ -280,8 +295,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // for camera action end and setting image
+    // for  setting image after activity end
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // camera action
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             Log.d("Photo",photo+"");
@@ -289,6 +305,19 @@ public class MainActivity extends AppCompatActivity {
             cardsList.get(g_pos).setImage(photo);
             mAdapter.notifyDataSetChanged();
             Log.d("Size",cardsList.size()+"");
+        }
+        // gallery action
+        else if (requestCode == PICK_IMAGE_REQUEST && data!= null && data.getData()!= null)
+        {
+            Uri filepath = data.getData();
+            // fetching image from gallery
+            try {
+                Bitmap temp_bmp = MediaStore.Images.Media.getBitmap(getApplication().getContentResolver(), filepath);
+                cardsList.get(g_pos).setImage(temp_bmp);
+                mAdapter.notifyDataSetChanged();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
