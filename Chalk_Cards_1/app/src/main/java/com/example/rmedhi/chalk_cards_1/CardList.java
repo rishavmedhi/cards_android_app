@@ -2,12 +2,16 @@ package com.example.rmedhi.chalk_cards_1;
 
 import android.graphics.Bitmap;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 /**
  * Created by R Medhi on 30-04-2017.
  */
 
 // class to store images
-public class CardList {
+public class CardList implements java.io.Serializable{
     Bitmap image;
 
     // getter for getting image element

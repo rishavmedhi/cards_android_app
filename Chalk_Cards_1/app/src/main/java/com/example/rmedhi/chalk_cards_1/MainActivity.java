@@ -40,9 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
     RelativeLayout mRelativeLayout;
     private RecyclerView mRecyclerView;
-    private Button mButtonAdd;
 
     private int g_pos;
+    private int preview=0;
+
+    Button mPreviewBtn;
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -68,23 +70,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_add:
-                int position = 0;
-                // initialising template
-
-                // setting blank template
-                cardsList.add(position,new CardList());
-                mAdapter.notifyItemInserted(0);
-                mRecyclerView.scrollToPosition(position);
-                break;
+                    int position = 0;
+                    // setting blank template
+                    cardsList.add(position, new CardList());
+                    Log.d("Add-size",cardsList.size()+"");
+                    mAdapter.notifyItemInserted(0);
+                    mRecyclerView.scrollToPosition(position);
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                    break;
         }
         return super.onOptionsItemSelected(item);
-
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Request window feature action bar
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -95,21 +96,37 @@ public class MainActivity extends AppCompatActivity {
         mRelativeLayout = (RelativeLayout) findViewById(R.id.rl);
 //        mButtonAdd = (Button) findViewById(R.menu.);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
+        mPreviewBtn = (Button) findViewById(R.id.preview);
 
         // Define a layout for RecyclerView
         mLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
 
         // Initialize a new instance of RecyclerView Adapter instance
         mAdapter = new ViewAdapter(mContext,cardsList);
         mAdapter.setHasStableIds(false);
 
+
         // Set the adapter for RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
-        /* initialising a blank image */
-        cardsList.add(template);
+        // click listener for preview button
+        mPreviewBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                // setting preview flag as 1
+                if (preview==0) {
+                    preview = 1;
+                    mPreviewBtn.setText("Back");
+                }
+                else{
+                    preview = 0;
+                    mPreviewBtn.setText("Preview");
+                }
+            }
+        });
+
 
 
 
@@ -162,9 +179,6 @@ public class MainActivity extends AppCompatActivity {
     public class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
         public List<CardList> mDataSet;
         private Context mContext;
-        private Random mRandom = new Random();
-        private int count=0;
-        private int addCardid;
 
         public ViewAdapter(Context context,List<CardList> list){
             mDataSet = list;
@@ -205,16 +219,14 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewAdapter.ViewHolder holder, final int position) {
 
             // checking if set image is not null
-            if (mDataSet.get(holder.getAdapterPosition()).getImage() != null)
-            {
+            if (mDataSet.get(holder.getAdapterPosition()).getImage() != null) {
                 holder.mImageView.setVisibility(View.VISIBLE);
                 holder.mCameraButton.setVisibility(View.INVISIBLE);
                 holder.mGallerybtn.setVisibility(View.INVISIBLE);
-                Log.d("AdapterPosition",holder.getAdapterPosition()+"");
-                Log.d("Photo",mDataSet.get(holder.getAdapterPosition()).getImage()+"");
+                Log.d("AdapterPosition", holder.getAdapterPosition() + "");
+                Log.d("Photo", mDataSet.get(holder.getAdapterPosition()).getImage() + "");
                 holder.mImageView.setImageBitmap(mDataSet.get(holder.getAdapterPosition()).getImage());
-            }
-            else{
+            } else {
                 holder.mImageView.setVisibility(View.INVISIBLE);
                 holder.mCameraButton.setVisibility(View.VISIBLE);
                 holder.mGallerybtn.setVisibility(View.VISIBLE);
@@ -249,8 +261,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
 
-                    // Remove the item on remove/button click
-                    mDataSet.remove(position);
+
+
+
+                        // Remove the item on remove/button click
+                        mDataSet.remove(position);
 
                 /*
                     public final void notifyItemRemoved (int position)
@@ -265,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                     Parameters
                         position : Position of the item that has now been removed
                 */
-                    notifyItemRemoved(position);
+                        notifyItemRemoved(position);
 
                 /*
                     public final void notifyItemRangeChanged (int positionStart, int itemCount)
@@ -281,10 +296,14 @@ public class MainActivity extends AppCompatActivity {
                         positionStart : Position of the first item that has changed
                         itemCount : Number of items that have changed
                 */
-                    notifyItemRangeChanged(position,mDataSet.size());
+                        notifyItemRangeChanged(position, mDataSet.size());
 
-                    // Show the removed item label
+                        // Show the removed item label
 //                Toast.makeText(mContext,"Removed : " + itemLabel,Toast.LENGTH_SHORT).show();
+                        Log.d("Size:", mDataSet.size() + "");
+                    if (mDataSet.size()==0) {
+                        mRecyclerView.setVisibility(View.INVISIBLE);
+                    }
                 }
             });
         }
