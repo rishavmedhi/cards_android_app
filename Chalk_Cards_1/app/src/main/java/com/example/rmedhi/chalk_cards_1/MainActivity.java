@@ -47,9 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private List<com.example.rmedhi.chalk_cards_1.CardList> cardsList = new ArrayList();
-
-    private Bitmap bmp;
+    private ArrayList<CardList> cardsList = new ArrayList<>();
 
     private com.example.rmedhi.chalk_cards_1.CardList template=new com.example.rmedhi.chalk_cards_1.CardList();
 
@@ -72,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_add:
                 int position = 0;
                 // initialising template
-                template.setImage(bmp);
+
                 // setting blank template
-                cardsList.add(position,template);
+                cardsList.add(position,new CardList());
                 mAdapter.notifyItemInserted(0);
                 mRecyclerView.scrollToPosition(position);
                 break;
@@ -105,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize a new instance of RecyclerView Adapter instance
         mAdapter = new ViewAdapter(mContext,cardsList);
+        mAdapter.setHasStableIds(false);
 
         // Set the adapter for RecyclerView
         mRecyclerView.setAdapter(mAdapter);
@@ -161,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
-        private List<CardList> mDataSet;
+        public List<CardList> mDataSet;
         private Context mContext;
         private Random mRandom = new Random();
         private int count=0;
@@ -197,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
             // Create a new View
             View v = LayoutInflater.from(mContext).inflate(R.layout.custom_view,parent,false);
             ViewAdapter.ViewHolder vh = new ViewAdapter.ViewHolder(v);
+            vh.setIsRecyclable(false);
             return vh;
         }
 
@@ -205,18 +205,17 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewAdapter.ViewHolder holder, final int position) {
 
             // checking if set image is not null
-            if (mDataSet.get(position).getImage() != null)
+            if (mDataSet.get(holder.getAdapterPosition()).getImage() != null)
             {
                 holder.mImageView.setVisibility(View.VISIBLE);
-                holder.mRemoveButton.setVisibility(View.INVISIBLE);
                 holder.mCameraButton.setVisibility(View.INVISIBLE);
                 holder.mGallerybtn.setVisibility(View.INVISIBLE);
-                Log.d("Photo",mDataSet.get(position).getImage()+"");
-                holder.mImageView.setImageBitmap(mDataSet.get(position).getImage());
+                Log.d("AdapterPosition",holder.getAdapterPosition()+"");
+                Log.d("Photo",mDataSet.get(holder.getAdapterPosition()).getImage()+"");
+                holder.mImageView.setImageBitmap(mDataSet.get(holder.getAdapterPosition()).getImage());
             }
             else{
                 holder.mImageView.setVisibility(View.INVISIBLE);
-                holder.mRemoveButton.setVisibility(View.VISIBLE);
                 holder.mCameraButton.setVisibility(View.VISIBLE);
                 holder.mGallerybtn.setVisibility(View.VISIBLE);
             }
@@ -225,7 +224,9 @@ public class MainActivity extends AppCompatActivity {
             holder.mCameraButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    g_pos=position;
+                    g_pos=holder.getAdapterPosition();
+                    Log.d("g_pos",g_pos+"");
+                    Log.d("position",position+"");
                     Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 }
@@ -233,9 +234,9 @@ public class MainActivity extends AppCompatActivity {
 
             // click action for gallery button
             holder.mGallerybtn.setOnClickListener(new View.OnClickListener() {
-                  @Override
                   public void onClick(View v) {
-                      g_pos=position;
+                      g_pos=holder.getAdapterPosition();
+                      Log.d("g_pos",g_pos+"");
                       Intent galleryintent = new Intent();
                       galleryintent.setType("image/*");
                       galleryintent.setAction(Intent.ACTION_GET_CONTENT);
@@ -300,10 +301,11 @@ public class MainActivity extends AppCompatActivity {
         // camera action
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-            Log.d("Photo",photo+"");
+            Log.d("cam_Photo",photo+"---"+g_pos);
             // imageView.setImageBitmap(photo);
-            cardsList.get(g_pos).setImage(photo);
-            mAdapter.notifyDataSetChanged();
+            CardList iv = cardsList.get(g_pos);
+            iv.setImage(photo);
+            mAdapter.notifyItemChanged(g_pos);
             Log.d("Size",cardsList.size()+"");
         }
         // gallery action
@@ -314,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Bitmap temp_bmp = MediaStore.Images.Media.getBitmap(getApplication().getContentResolver(), filepath);
                 cardsList.get(g_pos).setImage(temp_bmp);
-                mAdapter.notifyDataSetChanged();
+                mAdapter.notifyItemChanged(g_pos);
             } catch (IOException e) {
                 e.printStackTrace();
             }
