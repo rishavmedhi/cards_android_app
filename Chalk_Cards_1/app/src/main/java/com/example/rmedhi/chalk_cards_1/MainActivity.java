@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -21,7 +20,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,7 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
@@ -51,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private ArrayList<CardList> cardsList = new ArrayList<>();
-
-    private com.example.rmedhi.chalk_cards_1.CardList template=new com.example.rmedhi.chalk_cards_1.CardList();
 
     @Override
     public MenuInflater getMenuInflater() {
@@ -95,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Get the widgets reference from XML layout
         mRelativeLayout = (RelativeLayout) findViewById(R.id.rl);
-//        mButtonAdd = (Button) findViewById(R.menu.);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mPreviewBtn = (Button) findViewById(R.id.preview);
 
