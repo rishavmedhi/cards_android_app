@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,65 +116,34 @@ public class MainActivity extends AppCompatActivity {
         mPreviewBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                // setting preview flag as 1
+                // setting preview flag as 1 if preview not active
                 if (preview==0) {
-                    preview = 1;
-                    mPreviewBtn.setText("Back");
+                    // if list of images is 0
+                    if (cardsList.size()==0)
+                        Toast.makeText(mContext,"Add a Card to Preview", Toast.LENGTH_SHORT).show();
+                    else {
+                        // checking if there is an image missing in a card
+                        int check_list=checklist(cardsList);
+                        if (check_list==0)
+                            Toast.makeText(mContext,"Add a Images to all cards to begin preview", Toast.LENGTH_SHORT).show();
+                        else {
+                            mRecyclerView.scrollToPosition(0);
+                            preview = 1;
+                            mRelativeLayout.setBackgroundColor(Color.BLACK);
+                            Toast.makeText(mContext,"Preview Mode", Toast.LENGTH_SHORT).show();
+                            mPreviewBtn.setText("Back");
+                        }
+                    }
                 }
-                else{
+                else
+                {
+                    mRelativeLayout.setBackgroundColor(Color.WHITE);
                     preview = 0;
+                    Toast.makeText(mContext,"Editing Mode", Toast.LENGTH_SHORT).show();
                     mPreviewBtn.setText("Preview");
                 }
             }
         });
-
-
-
-
-        // Set a click listener for add item button
-//        mButtonAdd.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Specify the position
-//                int position = 0;
-//
-//
-//                // Add an item to animals list
-//                cardsList.add(position,bmp);
-//
-//                /*
-//                    public final void notifyItemInserted (int position)
-//                        Notify any registered observers that the item reflected at position has been
-//                        newly inserted. The item previously at position is now at position position + 1.
-//
-//                        This is a structural change event. Representations of other existing items
-//                        in the data set are still considered up to date and will not be rebound,
-//                        though their positions may be altered.
-//
-//                    Parameters
-//                    position : Position of the newly inserted item in the data set
-//
-//                */
-//
-//                // Notify the adapter that an item inserted
-////                mAdapter.notifyItemInserted(position);
-//
-//                /*
-//                    public void scrollToPosition (int position)
-//                        Convenience method to scroll to a certain position. RecyclerView does not
-//                        implement scrolling logic, rather forwards the call to scrollToPosition(int)
-//
-//                    Parameters
-//                    position : Scroll to this adapter position
-//
-//                */
-//                // Scroll to newly added item position
-//                mRecyclerView.scrollToPosition(position);
-//
-//                // Show the added item label
-////                Toast.makeText(mContext,"Added : " + itemLabel,Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     public class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
@@ -260,49 +230,24 @@ public class MainActivity extends AppCompatActivity {
             holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-
-
-
+                    // removing only when preview mode is not active
+                    if (preview==0)
+                    {
                         // Remove the item on remove/button click
                         mDataSet.remove(position);
 
-                /*
-                    public final void notifyItemRemoved (int position)
-                        Notify any registered observers that the item previously located at position
-                        has been removed from the data set. The items previously located at and
-                        after position may now be found at oldPosition - 1.
-
-                        This is a structural change event. Representations of other existing items
-                        in the data set are still considered up to date and will not be rebound,
-                        though their positions may be altered.
-
-                    Parameters
-                        position : Position of the item that has now been removed
-                */
                         notifyItemRemoved(position);
 
-                /*
-                    public final void notifyItemRangeChanged (int positionStart, int itemCount)
-                        Notify any registered observers that the itemCount items starting at
-                        position positionStart have changed. Equivalent to calling
-                        notifyItemRangeChanged(position, itemCount, null);.
-
-                        This is an item change event, not a structural change event. It indicates
-                        that any reflection of the data in the given position range is out of date
-                        and should be updated. The items in the given range retain the same identity.
-
-                    Parameters
-                        positionStart : Position of the first item that has changed
-                        itemCount : Number of items that have changed
-                */
                         notifyItemRangeChanged(position, mDataSet.size());
-
-                        // Show the removed item label
-//                Toast.makeText(mContext,"Removed : " + itemLabel,Toast.LENGTH_SHORT).show();
                         Log.d("Size:", mDataSet.size() + "");
-                    if (mDataSet.size()==0) {
-                        mRecyclerView.setVisibility(View.INVISIBLE);
+                        // checking if the list of images is empty
+                        if (mDataSet.size()==0) {
+                            mRecyclerView.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                    else
+                    {
+                        Toast.makeText(mContext,"Preview Mode : Tap Back to Remove Cards", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -340,6 +285,21 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    // to check whether an element is null in the image list
+    public int checklist(ArrayList<CardList> a)
+    {
+        int flag=1;
+        for (int i=0;i<a.size();i++)
+        {
+            if(a.get(i).getImage()==null){
+                flag=0;
+                break;
+            }
+
+        }
+        return flag;
     }
 }
 
