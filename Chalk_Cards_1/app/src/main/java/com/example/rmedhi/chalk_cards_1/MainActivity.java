@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                         // checking if there is an image missing in a card
                         int check_list=checklist(cardsList);
                         if (check_list==0)
-                            Toast.makeText(mContext,"Add a Images to all cards to begin preview", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext,"Add Image to all cards to begin preview", Toast.LENGTH_SHORT).show();
                         else {
                             mRecyclerView.scrollToPosition(0);
                             preview = 1;
