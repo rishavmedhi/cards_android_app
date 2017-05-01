@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private int preview=0;
 
     Button mPreviewBtn;
+    TextView welcometext;
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -73,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter.notifyItemInserted(0);
                     mRecyclerView.scrollToPosition(position);
                     mRecyclerView.setVisibility(View.VISIBLE);
-                    break;
+                    welcometext.setVisibility(View.INVISIBLE);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mRelativeLayout = (RelativeLayout) findViewById(R.id.rl);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mPreviewBtn = (Button) findViewById(R.id.preview);
+        welcometext = (TextView) findViewById(R.id.welcome_text);
 
         // Define a layout for RecyclerView
         mLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.HORIZONTAL, false);
@@ -237,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                         // checking if the list of images is empty
                         if (mDataSet.size()==0) {
                             mRecyclerView.setVisibility(View.INVISIBLE);
+                            welcometext.setVisibility(View.VISIBLE);
                         }
                     }
                     else
