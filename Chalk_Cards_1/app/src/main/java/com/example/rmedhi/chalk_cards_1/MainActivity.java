@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -79,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
                     int position = 0;
                     // setting blank template
                     cardsList.add(position, new CardList());
-                    Log.d("Add-size",cardsList.size()+"");
                     mAdapter.notifyItemInserted(0);
                     mRecyclerView.scrollToPosition(position);
                     mRecyclerView.setVisibility(View.VISIBLE);
@@ -167,8 +165,6 @@ public class MainActivity extends AppCompatActivity {
             if (mDataSet.get(holder.getAdapterPosition()).getImage() != null) {
                 holder.mImageView.setVisibility(View.VISIBLE);
                 holder.mGallerybtn.setVisibility(View.INVISIBLE);
-                Log.d("AdapterPosition", holder.getAdapterPosition() + "");
-                Log.d("Photo", mDataSet.get(holder.getAdapterPosition()).getImage() + "");
                 holder.mImageView.setImageBitmap(mDataSet.get(holder.getAdapterPosition()).getImage());
             } else {
                 holder.mImageView.setVisibility(View.INVISIBLE);
@@ -179,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
             holder.mGallerybtn.setOnClickListener(new View.OnClickListener() {
                   public void onClick(View v) {
                       g_pos=holder.getAdapterPosition();
-                      Log.d("g_pos",g_pos+"");
                       Intent galleryintent = new Intent();
                       galleryintent.setType("image/*");
                       galleryintent.setAction(Intent.ACTION_GET_CONTENT);
@@ -232,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void verifyStoragePermission(Activity activity)
     {
-        Log.d("asd","asd");
         // check if permission is present
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
