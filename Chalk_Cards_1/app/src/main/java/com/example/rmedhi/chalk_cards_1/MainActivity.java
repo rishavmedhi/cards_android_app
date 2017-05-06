@@ -191,8 +191,13 @@ public class MainActivity extends AppCompatActivity {
             // fetching image from gallery
             try {
                 Bitmap temp_bmp = MediaStore.Images.Media.getBitmap(getApplication().getContentResolver(), filepath);
-                cardsList.get(g_pos).setImage(temp_bmp);
-                mAdapter.notifyItemChanged(g_pos);
+                // scaling the image down to optimise app
+                int img_width = temp_bmp.getWidth();
+                int newHeight=(int) (temp_bmp.getHeight() * (512.0 / temp_bmp.getWidth()));
+                Bitmap resized_temp_bmp= Bitmap.createScaledBitmap(temp_bmp,img_width,newHeight,true);
+                // setting image to image_view
+                cardsList.get(g_pos).setImage(resized_temp_bmp);
+                mAdapter.notifyDataSetChanged();
             } catch (IOException e) {
                 e.printStackTrace();
             }
