@@ -155,16 +155,12 @@ public class MainActivity extends AppCompatActivity {
         /* view holder of the card */
         public class ViewHolder extends RecyclerView.ViewHolder{
             public TextView mTextView;
-            public Button mCameraButton;
-            public Button mRemoveButton;
             public Button mGallerybtn;
             public ImageView mImageView;
             public RelativeLayout mRelativeLayout;
             public ViewHolder(View v){
                 super(v);
                 mTextView = (TextView) v.findViewById(R.id.tv);
-                mRemoveButton = (Button) v.findViewById(R.id.ib_remove);
-                mCameraButton = (Button) v.findViewById(R.id.camera_btn);
                 mGallerybtn = (Button) v.findViewById(R.id.gallery_btn);
                 mRelativeLayout = (RelativeLayout) v.findViewById(R.id.rl);
                 mImageView = (ImageView) v.findViewById(R.id.imageView);
@@ -188,28 +184,14 @@ public class MainActivity extends AppCompatActivity {
             // checking if set image is not null
             if (mDataSet.get(holder.getAdapterPosition()).getImage() != null) {
                 holder.mImageView.setVisibility(View.VISIBLE);
-                holder.mCameraButton.setVisibility(View.INVISIBLE);
                 holder.mGallerybtn.setVisibility(View.INVISIBLE);
                 Log.d("AdapterPosition", holder.getAdapterPosition() + "");
                 Log.d("Photo", mDataSet.get(holder.getAdapterPosition()).getImage() + "");
                 holder.mImageView.setImageBitmap(mDataSet.get(holder.getAdapterPosition()).getImage());
             } else {
                 holder.mImageView.setVisibility(View.INVISIBLE);
-                holder.mCameraButton.setVisibility(View.VISIBLE);
                 holder.mGallerybtn.setVisibility(View.VISIBLE);
             }
-
-            // setting click listener for camera launch and fetch clicked image
-            holder.mCameraButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    g_pos=holder.getAdapterPosition();
-                    Log.d("g_pos",g_pos+"");
-                    Log.d("position",position+"");
-                    Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
-                }
-            });
 
             // click action for gallery button
             holder.mGallerybtn.setOnClickListener(new View.OnClickListener() {
@@ -221,37 +203,9 @@ public class MainActivity extends AppCompatActivity {
                       galleryintent.setAction(Intent.ACTION_GET_CONTENT);
                       startActivityForResult(Intent.createChooser(galleryintent, "Select Picture"), PICK_IMAGE_REQUEST);
                   }
-              });
-
-            // Set a click listener for item remove button
-            holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // removing only when preview mode is not active
-                    if (preview==0)
-                    {
-                        // Remove the item on remove/button click
-                        mDataSet.remove(position);
-
-                        notifyItemRemoved(position);
-
-                        notifyItemRangeChanged(position, mDataSet.size());
-                        Log.d("Size:", mDataSet.size() + "");
-                        // checking if the list of images is empty
-                        if (mDataSet.size()==0) {
-                            mRecyclerView.setVisibility(View.INVISIBLE);
-                            welcometext.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    else
-                    {
-                        Toast.makeText(mContext,"Preview Mode : Tap Back to Remove Cards", Toast.LENGTH_SHORT).show();
-                    }
-                }
             });
         }
 
-        @Override
         public int getItemCount(){
             return mDataSet.size();
         }
@@ -260,18 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
     // for  setting image after activity end
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // camera action
-        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            Log.d("cam_Photo",photo+"---"+g_pos);
-            // imageView.setImageBitmap(photo);
-            CardList iv = cardsList.get(g_pos);
-            iv.setImage(photo);
-            mAdapter.notifyItemChanged(g_pos);
-            Log.d("Size",cardsList.size()+"");
-        }
-        // gallery action
-        else if (requestCode == PICK_IMAGE_REQUEST && data!= null && data.getData()!= null)
+        if (requestCode == PICK_IMAGE_REQUEST && data!= null && data.getData()!= null)
         {
             Uri filepath = data.getData();
             // fetching image from gallery
