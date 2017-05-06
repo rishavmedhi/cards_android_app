@@ -1,14 +1,16 @@
 package com.example.rmedhi.chalk_cards_1;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,11 +37,17 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1000;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private Context mContext;
 
     private RecyclerView mRecyclerView;
 
     private int g_pos;
+
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     TextView welcometext;
 
@@ -111,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
         // Set the adapter for RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
+        verifyStoragePermission(this);
+
 
     }
 
@@ -125,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* view holder of the card */
         public class ViewHolder extends RecyclerView.ViewHolder{
+            // creating elements with reference from view
             @BindView(R.id.tv)
                 TextView mTextView;
             @BindView(R.id.gallery_btn)
@@ -217,6 +228,22 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return flag;
+    }
+
+    public void verifyStoragePermission(Activity activity)
+    {
+        Log.d("asd","asd");
+        // check if permission is present
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // ask user for permission
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 }
 
